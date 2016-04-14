@@ -5,7 +5,7 @@
  *
  * Learn more: https://git.io/vWdr2
  */
-( function() {
+!( function() {
 	var isWebkit = navigator.userAgent.toLowerCase().indexOf( 'webkit' ) > -1,
 	    isOpera  = navigator.userAgent.toLowerCase().indexOf( 'opera' )  > -1,
 	    isIe     = navigator.userAgent.toLowerCase().indexOf( 'msie' )   > -1;

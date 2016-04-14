@@ -1,4 +1,9 @@
-! ( function() {
+/**
+ * Sudoers Javascript framework
+ *
+ * Add some commonly used utilities for cookies, query vars, utm params, etc.
+ */
+!( function() {
 
 	sudoers.utils = [];
 
