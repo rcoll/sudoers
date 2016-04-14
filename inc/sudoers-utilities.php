@@ -149,4 +149,92 @@ if ( ! function_exists( 'sudoers_head_cleanup' ) ) {
 	add_action( 'wp_head', 'sudoers_head_cleanup' );
 }
 
+if ( ! function_exists( 'sudoers_get_adjacent_post' ) ) {
+	/**
+	 * Get an adjacent post in a single category
+	 *
+	 * WordPress builtin get_adjacent_post matches all categories that a post is 
+	 * in. This matches only a single specified category.
+	 *
+	 * @param array $args Arguments array
+	 *
+	 * @global $post WordPress post object
+	 * @global $wpdb WordPress database object
+	 *
+	 * @uses wp_parse_args()
+	 * @uses WP_Error
+	 * @uses absint()
+	 * @uses get_category_by_slug()
+	 * @uses $wpdb->prepare()
+	 * @uses wp_cache_get()
+	 * @uses $wpdb->get_var()
+	 * @uses wp_cache_set()
+	 * @uses esc_url_raw()
+	 * @uses get_permalink()
+	 * @uses home_url()
+	 * 
+	 * @return mixed Result as url/string or post ID
+	 */
+	function sudoers_get_adjacent_post( $args ) {
+		global $post, $wpdb;
+
+		// Parse in default arguments
+		$args = wp_parse_args( $args, array( 
+			'in_category' => false, 
+			'post_id' => false, 
+			'return' => 'permalink', 
+		));
+
+		// Throw an error if no category is provided
+		if ( ! $args['in_category'] ) {
+			return new WP_Error( 'In_category not provided.' );
+		}
+
+		// Use $post->ID if no post ID provided
+		if ( ! $args['post_id'] ) {
+			$args['post_id'] = absint( $post->ID );
+		}
+
+		// Get the category ID from the slug if passed
+		if ( ! is_numeric( $args['in_category'] ) ) {
+			$args['in_category'] = get_category_by_slug( absint( $args['in_category'] ) )->term_id;
+		}
+
+		// Formulate the query
+		$query = $wpdb->prepare( "
+			SELECT p.ID FROM $wpdb->posts AS p 
+			INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id 
+			INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id 
+			AND tt.taxonomy = 'category'
+			AND tt.term_id IN (%d) 
+			WHERE p.ID < %d 
+			AND p.post_type = 'post'
+			AND p.post_status = 'publish'
+			ORDER BY p.ID DESC LIMIT 1 
+		", $args['in_category'], $args['post_id'] );
+
+		// Formulate the cache key
+		$cache_key = md5( serialize( $args ) );
+
+		// Try to get the result from cache first
+		$result = wp_cache_get( $cache_key, 'sudoers' );
+
+		// No cache present, run the query and cache the result
+		if ( ! $result ) {
+			$result = $wpdb->get_var( $query );
+
+			wp_cache_set( $cache_key, $result, 'sudoers', 3600 );
+		}
+
+		// Return the result in whatever format was requested
+		if ( null === $result && 'permalink' == $args['return'] ) {
+			return esc_url_raw( home_url() );
+		} elseif ( 'id' == $args['return'] ) {
+			return esc_url_raw( get_permalink( $result ) );
+		} else {
+			return absint( $result );
+		}
+	}
+}
+
 // omit
