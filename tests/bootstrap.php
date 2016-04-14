@@ -8,7 +8,5 @@ if ( ! $tests_dir ) {
 
 require_once $tests_dir . '/includes/functions.php';
 require_once $tests_dir . '/includes/bootstrap.php';
-require_once dirname( __FILE__ ) . '/sudoers-testcase.php';
-require_once dirname( __FILE__ ) . '/sudoers-ajax-testcase.php';
 
 // omit
