@@ -13,6 +13,7 @@ class Test_Sudoers_Utilities extends WP_UnitTestCase {
 	function test_tests() {
 		$this->assertEquals( 1, 1 );
 		$this->assertNotEquals( 1, 2 );
+		$this->assertEquals( 2, 2 );
 	}
 
 }
