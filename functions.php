@@ -3,6 +3,7 @@
  * sudoers functions and definitions.
  *
  * @link https://developer.wordpress.org/themes/basics/theme-functions/
+ * @since 0.1
  *
  * @package sudoers
  */
